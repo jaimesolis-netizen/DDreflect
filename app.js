@@ -9,7 +9,7 @@
   /* ---------------- CONFIG ---------------- */
   const STORAGE_KEY = 'dd_dispositivo_v1';
   const SETTINGS_KEY = 'dd_dispositivo_settings_v1';
-  const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
+  const GROQ_ENDPOINT = 'ddreflect.jaime-solis.workers.dev';
 
   const STEPS = [
     { id: 1, label: 'Sujeto',     accentVar: '--red',    accentHex: '#E8251C', icon: '01' },
