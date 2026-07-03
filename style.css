@@ -241,6 +241,7 @@ input::placeholder, textarea::placeholder { color: #a7b2bc; }
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
 }
 .companion__msgs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; max-height: 320px; overflow-y: auto; }
+#dialogueCompanion .companion__msgs { max-height: 440px; }
 .msg { font-size: 13.5px; padding: 10px 13px; border-radius: 10px; line-height: 1.5; max-width: 92%; }
 .msg--ai { background: var(--bg-soft); border: 1px solid var(--line); align-self: flex-start; white-space: pre-wrap; }
 .msg--user { background: var(--navy); color: #fff; align-self: flex-end; }
@@ -334,7 +335,11 @@ input::placeholder, textarea::placeholder { color: #a7b2bc; }
 .ficha-doc__questions li { font-size: 14.5px; padding-left: 18px; position: relative; }
 .ficha-doc__questions li::before { content: '—'; position: absolute; left: 0; color: var(--purple); }
 .ficha-doc__section--ai { background: linear-gradient(180deg, #faf7fd, transparent); margin: 0 -12px; padding: 14px 12px; border-radius: var(--radius-sm); }
-.ficha-doc__section--ai p { font-style: italic; }
+.ficha-doc__section--ai > p { font-style: italic; }
+.ai-lenses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.ai-lens { background: #fff; border: 1px solid #e6dcf2; border-radius: var(--radius-sm); padding: 10px 12px; }
+.ai-lens strong { display: block; font-family: var(--font-display); font-size: 11.5px; color: var(--purple); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .03em; }
+.ai-lens p { font-size: 12.5px; font-style: normal; margin: 0; color: var(--ink); line-height: 1.45; }
 .ficha-doc__footer { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; }
 .ai-status { font-size: 12.5px; color: var(--red); min-height: 1em; margin: -10px 0 14px; }
 
@@ -410,6 +415,7 @@ input::placeholder, textarea::placeholder { color: #a7b2bc; }
   .level-grid { grid-template-columns: repeat(2, 1fr); }
   .stepnav { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 12px 18px; margin: 0; max-width: none; z-index: 40; }
   .ficha-doc { padding: 20px; }
+  .ai-lenses { grid-template-columns: 1fr; }
   .ficha-doc__header { flex-direction: column; }
   .companion__msgs { max-height: 220px; }
 }

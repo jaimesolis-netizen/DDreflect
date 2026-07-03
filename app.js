@@ -33,8 +33,9 @@
 
   const SYSTEM_PROMPT = `Eres el acompañante IA del taller "Diseño de Dispositivos para la Reflexión en las Prácticas Profesionales" de la Dirección de Desarrollo Docente de la PUCV.
 Ayudas a docentes y tutores de CUALQUIER carrera (no solo pedagogía) a diseñar un dispositivo de elicitación reflexiva para sus estudiantes en práctica profesional.
-Conoces los fundamentos de Dewey (la reflexión nace de la perplejidad) y Schön (reflexión en la acción / sobre la acción), y los modelos ALACT (Korthagen), la Cebolla (Korthagen & Vasalos), el Ciclo de Gibbs y los niveles de Van Manen.
-Responde siempre en español de Chile, en tono cercano y profesional, breve (máximo 120 palabras salvo que se te pida explícitamente una lista de preguntas), concreto y accionable. Nunca inventes citas académicas. No uses markdown con asteriscos para negritas; usa texto plano.`;
+Conoces los fundamentos de Dewey (la reflexión nace de la perplejidad, la duda genuina frente a una experiencia), Schön (conocimiento tácito en la acción vs. reflexión posterior sobre la acción) y Mezirow (aprendizaje transformador: revisión crítica de premisas y esquemas de significado, no solo de contenidos). Conoces también los modelos ALACT (Korthagen), la Cebolla (Korthagen & Vasalos), el Ciclo de Gibbs y los niveles de Van Manen.
+Cuando se te pida analizar o adecuar un dispositivo ya diseñado, usa estas perspectivas de forma situada y concreta -referida a los datos reales del dispositivo que te entregan-, nunca como una clase de teoría genérica ni una definición de diccionario.
+Responde siempre en español de Chile, en tono cercano y profesional, breve (máximo 120 palabras salvo que se te pida explícitamente una lista de preguntas o secciones), concreto y accionable. Nunca inventes citas académicas. No uses markdown con asteriscos para negritas; usa texto plano.`;
 
   /* ---------------- STATE ---------------- */
   let state = {
@@ -47,8 +48,8 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
       preguntas: { descriptiva: '', analitica: '', critica: '' },
       nivel: { valor: '' },
     },
-    chat: { 1: [], 2: [], 3: [], 4: [], 5: [] },
-    aiElaboration: '',
+    chat: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+    aiElaboration: null,
   };
 
   let settings = { apiKey: '', model: 'openai/gpt-oss-120b' };
@@ -121,7 +122,8 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
   function goNext() {
     if (state.step === 'intro') return goToStep(1);
     if (typeof state.step === 'number') {
-      if (state.step === 5) return goToStep('final');
+      if (state.step === 5) return goToStep(6);
+      if (state.step === 6) return goToStep('final');
       return goToStep(state.step + 1);
     }
   }
@@ -130,7 +132,7 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
       if (state.step === 1) return goToStep('intro');
       return goToStep(state.step - 1);
     }
-    if (state.step === 'final') return goToStep(5);
+    if (state.step === 'final') return goToStep(6);
   }
 
   /* ---------------- RENDER PANELS ---------------- */
@@ -140,11 +142,16 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     $('#btnBack').disabled = false;
     const btnNext = $('#btnNext');
     if (typeof state.step === 'number') {
-      btnNext.textContent = state.step === 5 ? 'Ver mi dispositivo →' : 'Continuar →';
-      btnNext.disabled = !isStepComplete(state.step);
+      if (state.step === 6) {
+        btnNext.textContent = 'Ver mi dispositivo →';
+        btnNext.disabled = false;
+      } else {
+        btnNext.textContent = state.step === 5 ? 'Continuar al diálogo →' : 'Continuar →';
+        btnNext.disabled = !isStepComplete(state.step);
+      }
     }
     if (typeof state.step === 'number') {
-      $('#progressBadge').textContent = `Paso ${state.step} de 5`;
+      $('#progressBadge').textContent = state.step === 6 ? 'Diálogo reflexivo' : `Paso ${state.step} de 5`;
     } else if (state.step === 'final') {
       $('#progressBadge').textContent = 'Dispositivo listo';
     } else {
@@ -152,7 +159,8 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     }
     renderRail();
     renderSidebar();
-    if (typeof state.step === 'number') renderCompanion(state.step);
+    if (typeof state.step === 'number' && state.step !== 6) renderCompanion(state.step);
+    if (state.step === 6) renderDialoguePanel();
     if (state.step === 'final') renderFichaFinal();
     syncFieldsFromState();
   }
@@ -269,8 +277,13 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
 
       ${state.aiElaboration ? `
       <div class="ficha-doc__section ficha-doc__section--ai" style="--accent:#7B4CB8">
-        <h5>Síntesis del acompañante IA</h5>
-        <p>${esc(state.aiElaboration)}</p>
+        <h5>Adecuaciones mediadas por IA</h5>
+        <p>${esc(state.aiElaboration.sintesis)}</p>
+        <div class="ai-lenses">
+          <div class="ai-lens"><strong>Mirada Dewey</strong><p>${esc(state.aiElaboration.dewey)}</p></div>
+          <div class="ai-lens"><strong>Mirada Schön</strong><p>${esc(state.aiElaboration.schon)}</p></div>
+          <div class="ai-lens"><strong>Mirada Mezirow</strong><p>${esc(state.aiElaboration.mezirow)}</p></div>
+        </div>
       </div>` : ''}
 
       <div class="ficha-doc__footer">
@@ -322,7 +335,7 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
   }
 
   function onDataChange() {
-    if (state.aiElaboration) state.aiElaboration = '';
+    if (state.aiElaboration) state.aiElaboration = null;
     renderSidebar();
     if (typeof state.step === 'number') {
       $('#btnNext').disabled = !isStepComplete(state.step);
@@ -360,6 +373,33 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     const content = msg && typeof msg.content === 'string' ? msg.content : '';
     return content.trim();
   }
+
+  function parseLabeledSections(text, labels) {
+    // Groups AI output into { label: text } even if a section spans several lines.
+    const out = {};
+    let current = null;
+    (text || '').split('\n').forEach((line) => {
+      const trimmed = line.trim();
+      const hit = labels.find((l) => new RegExp('^' + l + '\\s*:', 'i').test(trimmed));
+      if (hit) {
+        current = hit;
+        out[hit] = trimmed.replace(new RegExp('^' + hit + '\\s*:\\s*', 'i'), '').trim();
+      } else if (current && trimmed) {
+        out[current] = (out[current] ? out[current] + ' ' : '') + trimmed;
+      }
+    });
+    return out;
+  }
+
+  const MODEL_GUIDES = {
+    'ALACT (Korthagen)': 'Guía el diálogo recorriendo las 5 fases ALACT aplicadas al proceso de DISEÑAR este dispositivo (no a una clase): 1) Acción -qué hizo primero-, 2) Looking back -mirar atrás: qué pasó al elegir cada componente-, 3) Awareness -qué aspectos esenciales nota ahora-, 4) Creating alternatives -qué otras opciones ve-, 5) Trial -qué probará la próxima vez-. Una fase por turno, en ese orden.',
+    'Cebolla (Korthagen & Vasalos)': 'Guía el diálogo bajando capa por capa del modelo de la Cebolla, aplicado a sus decisiones de diseño: entorno, conducta, competencias, creencias, identidad y misión. Empieza en conducta/competencias y profundiza según lo que la persona vaya compartiendo.',
+    'Ciclo de Gibbs': 'Guía el diálogo siguiendo el Ciclo de Gibbs aplicado al proceso de diseño: descripción de lo que hizo, sentimientos durante el proceso, evaluación de lo bueno y lo difícil, análisis de por qué, conclusión, y plan de acción concreto.',
+    'Niveles de Van Manen': 'Guía el diálogo subiendo de nivel: primero 1-2 preguntas técnicas/descriptivas sobre el diseño, luego prácticas/de significado, y cierra con una pregunta crítica sobre los supuestos o valores detrás de sus decisiones.',
+    'Schön (reflexión en/sobre la acción)': 'Guía el diálogo distinguiendo momentos de conocimiento tácito -decisiones que tomó "sin pensarlo mucho"- de momentos de reflexión deliberada sobre la acción, invitando a nombrar cuáles fueron cuáles en su proceso de diseño.',
+  };
+  const DEFAULT_MODEL_GUIDE = 'No hay un modelo formal específico elegido: guía el diálogo con preguntas abiertas al estilo de Dewey, partiendo de qué duda o perplejidad tuvo la persona al diseñar este dispositivo.';
+  function modelGuideFor(modeloValor) { return MODEL_GUIDES[modeloValor] || DEFAULT_MODEL_GUIDE; }
 
   function contextSummary(uptoStep) {
     const d = state.data;
@@ -466,6 +506,99 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     saveState();
   }
 
+  /* ---------------- DIÁLOGO REFLEXIVO (paso 6) ---------------- */
+  function buildDialogueMessages() {
+    const guide = modelGuideFor(state.data.modelo.valor);
+    const sys = SYSTEM_PROMPT + `
+
+Tarea específica: estás facilitando un diálogo reflexivo breve (no una clase ni un monólogo) con la persona que acaba de diseñar este dispositivo, sobre su propio PROCESO DE DISEÑO -no sobre su práctica de aula ni la de sus estudiantes-, aplicando fielmente este modelo:
+${guide}
+
+Contexto del dispositivo ya diseñado:
+${contextSummary(5)}
+
+Reglas: haz UNA sola pregunta por turno y espera la respuesta; nunca encadenes varias preguntas juntas. Sé cálido, cercano y breve (2-4 líneas). Tras recorrer lo esencial del modelo (normalmente entre 3 y 5 intercambios), cierra con una orientación final breve y concreta sobre su dispositivo, y dile explícitamente que ya puede continuar a su ficha.`;
+    const history = (state.chat[6] || [])
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map((m) => ({ role: m.role, content: m.content }));
+    return [{ role: 'system', content: sys }, ...history];
+  }
+
+  function renderDialogueMsgsInto() {
+    const host = $('#dialogueMsgs');
+    if (!host) return;
+    host.innerHTML = '';
+    (state.chat[6] || []).forEach((m) => {
+      const div = document.createElement('div');
+      div.className = 'msg ' + (m.role === 'user' ? 'msg--user' : m.role === 'error' ? 'msg--error' : 'msg--ai');
+      div.textContent = m.content;
+      host.appendChild(div);
+    });
+    host.scrollTop = host.scrollHeight;
+  }
+
+  async function dialogueTurn(userText) {
+    state.chat[6] = state.chat[6] || [];
+    if (userText) {
+      state.chat[6].push({ role: 'user', content: userText });
+      renderDialogueMsgsInto();
+      saveState();
+    }
+    const host = $('#dialogueMsgs');
+    const loading = document.createElement('div');
+    loading.className = 'msg msg--ai msg--loading';
+    loading.textContent = 'Pensando…';
+    if (host) { host.appendChild(loading); host.scrollTop = host.scrollHeight; }
+    try {
+      const reply = await callGroq(buildDialogueMessages(), { maxTokens: 250, temperature: 0.7 });
+      state.chat[6].push({ role: 'assistant', content: reply || '(sin respuesta)' });
+    } catch (err) {
+      state.chat[6].push({ role: 'error', content: 'No se pudo continuar el diálogo. ' + err.message });
+    }
+    renderDialogueMsgsInto();
+    saveState();
+  }
+
+  function renderDialoguePanel() {
+    const host = $('#dialogueCompanion');
+    if (!host) return;
+    if (!hasKey()) {
+      host.innerHTML = `
+        <div class="companion__head">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+          <strong>Acompañante IA</strong>
+        </div>
+        <div class="companion__body">
+          <p class="companion__locked">Activa tu clave de Groq para conversar con tu acompañante.
+            <button class="btn btn--sm" id="btnUnlockDialogue">Configurar acompañante</button></p>
+        </div>`;
+      $('#btnUnlockDialogue', host).addEventListener('click', openSettings);
+      return;
+    }
+    host.innerHTML = `
+      <div class="companion__head">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+        <div><strong>Acompañante IA</strong><br><span>Diálogo guiado por: ${esc(state.data.modelo.valor || 'sin modelo elegido')}</span></div>
+      </div>
+      <div class="companion__body">
+        <div class="companion__msgs" id="dialogueMsgs"></div>
+        <form class="companion__ask" id="dialogueAsk">
+          <input type="text" id="dialogueInput" placeholder="Escribe tu respuesta…" autocomplete="off">
+          <button class="btn btn--sm" type="submit">Enviar</button>
+        </form>
+      </div>`;
+    renderDialogueMsgsInto();
+    $('#dialogueAsk', host).addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = $('#dialogueInput', host);
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      dialogueTurn(text);
+    });
+    if (!state.chat[6] || state.chat[6].length === 0) dialogueTurn();
+  }
+
   async function sugerirPreguntas() {
     if (!hasKey()) { openSettings(); return; }
     const btn = $('#btnSugerirPreguntas');
@@ -475,16 +608,13 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     try {
       const messages = [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `Contexto del dispositivo:\n${contextSummary(5)}\n\nRedacta EXACTAMENTE 3 preguntas orientadoras para la ficha de este dispositivo, una por nivel, en español de Chile. Responde solo con estas 3 líneas, sin numeración ni texto adicional:\nDESCRIPTIVA: <pregunta>\nANALITICA: <pregunta>\nCRITICA: <pregunta>` },
+        { role: 'user', content: `Contexto del dispositivo (sujeto, estímulo y modelo reflexivo ya definidos):\n${contextSummary(3)}\n\nRedacta EXACTAMENTE 3 preguntas orientadoras NUEVAS para este dispositivo, ignorando cualquier borrador previo -créalas desde cero a partir del contexto anterior-: una de nivel descriptivo, una de nivel analítico/dialógico y una de nivel crítico/transformador. Responde solo con estas 3 líneas, sin numeración ni texto adicional, cada una en una sola línea:\nDESCRIPTIVA: <pregunta>\nANALITICA: <pregunta>\nCRITICA: <pregunta>` },
       ];
       const reply = await callGroq(messages, { maxTokens: 300, temperature: 0.7 });
-      const get = (label) => {
-        const m = reply.match(new RegExp(label + '\\s*:\\s*(.+)', 'i'));
-        return m ? m[1].trim() : '';
-      };
-      const desc = get('DESCRIPTIVA');
-      const analit = get('ANALITICA|ANALÍTICA');
-      const crit = get('CRITICA|CRÍTICA');
+      const parsed = parseLabeledSections(reply, ['DESCRIPTIVA', 'ANAL[IÍ]TICA', 'CR[IÍ]TICA']);
+      const desc = parsed['DESCRIPTIVA'] || '';
+      const analit = parsed['ANAL[IÍ]TICA'] || '';
+      const crit = parsed['CR[IÍ]TICA'] || '';
       if (desc) { $('#f_p_desc').value = desc; state.data.preguntas.descriptiva = desc; }
       if (analit) { $('#f_p_analitica').value = analit; state.data.preguntas.analitica = analit; }
       if (crit) { $('#f_p_critica').value = crit; state.data.preguntas.critica = crit; }
@@ -514,16 +644,30 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     try {
       const messages = [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `Contexto completo del dispositivo:\n${contextSummary(5)}\n\nRedacta una síntesis breve (entre 120 y 180 palabras), en prosa fluida y profesional, en español de Chile, que explique cómo el estímulo, el modelo reflexivo, las preguntas orientadoras y el nivel de profundidad elegidos trabajan juntos de forma coherente para este sujeto destinatario. Debe sonar como una nota de presentación que el/la docente podría compartir con su coordinación de prácticas o con colegas. No inventes datos que no estén en el contexto entregado. No uses viñetas, títulos ni markdown — solo párrafos de texto plano.` },
+        { role: 'user', content: `Contexto completo del dispositivo ya diseñado:
+${contextSummary(5)}
+
+Analiza este dispositivo específico (no en general) desde tres lentes teóricas, y para cada una entrega una lectura situada de 2-3 frases que incluya al menos una sugerencia concreta de ajuste o un punto fuerte real de ESTE dispositivo -no una definición de la teoría-. Luego una síntesis integradora breve.
+
+Responde EXACTAMENTE con este formato, cada sección puede tener varias frases pero sin viñetas ni markdown:
+SINTESIS: <120-180 palabras integrando las tres miradas y explicando por qué el conjunto es coherente o qué ajustar>
+DEWEY: <2-3 frases: ¿el estímulo elegido genera perplejidad/duda genuina para este sujeto? sugiere un ajuste si no>
+SCHON: <2-3 frases: ¿el dispositivo distingue o articula reflexión en-la-acción y sobre-la-acción? sugiere un ajuste si no>
+MEZIROW: <2-3 frases: ¿las preguntas y el nivel de profundidad elegidos realmente habilitan revisar premisas/esquemas de significado, o se quedan en lo descriptivo? sugiere un ajuste si no>` },
       ];
-      const reply = await callGroq(messages, { maxTokens: 400, temperature: 0.65 });
-      if (reply) {
-        state.aiElaboration = reply;
+      const reply = await callGroq(messages, { maxTokens: 650, temperature: 0.6 });
+      const parsed = parseLabeledSections(reply, ['SINTESIS', 'DEWEY', 'SCH[OÖ]N', 'MEZIROW']);
+      const sintesis = parsed['SINTESIS'] || '';
+      const dewey = parsed['DEWEY'] || '';
+      const schon = parsed['SCH[OÖ]N'] || '';
+      const mezirow = parsed['MEZIROW'] || '';
+      if (sintesis || dewey || schon || mezirow) {
+        state.aiElaboration = { sintesis, dewey, schon, mezirow };
         renderFichaFinal();
         saveState();
-        btn.textContent = '🔄 Regenerar síntesis IA';
+        btn.innerHTML = '🔄 Regenerar adecuaciones IA';
       } else if (status) {
-        status.textContent = 'El acompañante no devolvió texto. Intenta de nuevo.';
+        status.textContent = 'El acompañante no devolvió texto reconocible. Intenta de nuevo.';
       }
     } catch (err) {
       if (status) status.textContent = 'No se pudo elaborar la síntesis. ' + err.message;
@@ -583,8 +727,8 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
         preguntas: { descriptiva: '', analitica: '', critica: '' },
         nivel: { valor: '' },
       },
-      chat: { 1: [], 2: [], 3: [], 4: [], 5: [] },
-      aiElaboration: '',
+      chat: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+      aiElaboration: null,
     };
     render();
   }

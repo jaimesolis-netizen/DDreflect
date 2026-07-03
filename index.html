@@ -51,7 +51,7 @@
     <section class="panel intro" data-panel="intro">
       <p class="eyebrow">Dirección de Desarrollo Docente · PUCV</p>
       <h1>Construye tu dispositivo de reflexión</h1>
-      <p class="intro__lede">Este acompañante te guía, paso a paso, para diseñar un dispositivo de elicitación reflexiva para las prácticas profesionales de tu carrera — y lo va compilando en una <strong>ficha lista para usar</strong>, con ayuda de un modelo de IA en cada etapa.</p>
+      <p class="intro__lede">Este acompañante te guía, paso a paso, para diseñar un dispositivo de elicitación reflexiva para las prácticas profesionales de tu carrera — lo va compilando en una <strong>ficha lista para usar</strong>, y antes de entregártela conversa contigo aplicando el mismo modelo reflexivo que elijas, para que lo experimentes en carne propia.</p>
       <div class="intro__grid">
         <div class="intro__card" style="--accent:var(--red)"><span>01</span>Sujeto</div>
         <div class="intro__card" style="--accent:var(--yellow)"><span>02</span>Estímulo</div>
@@ -211,6 +211,15 @@
       <div class="companion" data-companion="5"></div>
     </section>
 
+    <!-- STEP 6: DIÁLOGO REFLEXIVO -->
+    <section class="panel" data-panel="6" hidden>
+      <p class="step-eyebrow" style="--accent:var(--purple)">Antes de tu ficha</p>
+      <h2>Diálogo reflexivo con tu acompañante</h2>
+      <p class="step-help">Tu acompañante va a conversar contigo aplicando el mismo modelo reflexivo que elegiste, pero sobre <strong>tu propio proceso de diseño</strong> — para que vivas en carne propia lo que le vas a pedir a tus estudiantes. Puedes continuar cuando quieras, no es obligatorio agotar la conversación.</p>
+
+      <div class="companion" id="dialogueCompanion"></div>
+    </section>
+
     <!-- RESULT / FICHA FINAL -->
     <section class="panel" data-panel="final" hidden>
       <p class="step-eyebrow" style="--accent:var(--navy)">Listo</p>
@@ -219,7 +228,7 @@
 
       <button type="button" class="btn btn--ai" id="btnElaborarIA">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
-        Elaborar con IA
+        Adecuar con IA (Dewey · Schön · Mezirow)
       </button>
       <p class="ai-status" id="elaborarStatus"></p>
 

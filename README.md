@@ -14,13 +14,41 @@ Guía a la persona docente paso a paso por los 5 componentes de un dispositivo d
 
 No necesitas backend, base de datos ni build step: son archivos estáticos.
 
-## Cómo obtiene cada persona su clave de Groq
+## Cómo activar el acompañante IA (clave de Groq)
 
-1. Cada usuario entra a [console.groq.com/keys](https://console.groq.com/keys), crea una cuenta gratuita y genera una API key (empieza con `gsk_...`).
-2. Al abrir el aplicativo, se le pedirá pegar esa clave en el panel de configuración (ícono de engranaje, arriba a la derecha).
-3. La clave se guarda **solo en el navegador de esa persona** (`localStorage`). El aplicativo no tiene servidor propio: las llamadas van directo del navegador a `api.groq.com`. Nadie más ve esa clave, pero por lo mismo cada participante necesita la suya.
+Tienes tres formas. **A quedó descartada** — si llegaste aquí porque a ti te pasó, sigue leyendo.
 
-> Nota de seguridad: como es una app 100% estática (sin backend), la clave vive en el navegador de quien la ingresa. Es el mismo modelo que usan la mayoría de las apps "trae tu propia clave". No la compartas en capturas de pantalla ni la subas a un repositorio.
+### ~~Opción A — Clave pegada directo en app.js~~ (no usar)
+
+Pegar la clave real dentro de `app.js` en un repositorio público **no funciona de forma sostenida**: GitHub escanea automáticamente los repos públicos en busca de patrones de claves conocidas (Groq es uno de los proveedores que participan en ese programa) y, apenas la detecta, se la reporta a Groq — que la revoca en minutos. No importa qué tan bien la "escondas" en el código (base64, partirla en pedazos, etc.): en cuanto la app hace una llamada real, la clave viaja en texto plano en la petición HTTP y cualquiera puede verla con las herramientas de desarrollador del navegador. Ofuscarla solo le quita a GitHub la posibilidad de avisarte — no te protege de nada.
+
+### Opción B — Proxy propio con Cloudflare Workers (recomendada: pública, gratis, cero configuración para participantes)
+
+La clave vive en Cloudflare, nunca en el repositorio ni en el navegador de quien usa la app. Así el repo puede ser 100% público sin riesgo.
+
+1. Crea una cuenta gratuita en [dash.cloudflare.com](https://dash.cloudflare.com) (no pide tarjeta).
+2. **Workers & Pages → Create → Create Worker**. Ponle un nombre (ej. `dd-groq-proxy`) → **Deploy**.
+3. **Edit code** → borra el ejemplo → pega todo el contenido de [`worker/worker.js`](worker/worker.js) de este repo → **Deploy**.
+4. **Settings → Variables and Secrets → Add variable**:
+   - Name: `GROQ_API_KEY`
+   - Value: tu clave `gsk_...` (marca la opción **Encrypt**)
+   - Guarda y vuelve a desplegar si te lo pide.
+5. Copia la URL que te dio Cloudflare (algo como `https://dd-groq-proxy.tu-usuario.workers.dev`).
+6. Abre `app.js`, busca `const PROXY_ENDPOINT = '';` (cerca de la línea 20) y pega esa URL:
+   ```js
+   const PROXY_ENDPOINT = 'https://dd-groq-proxy.tu-usuario.workers.dev';
+   ```
+7. Sube el cambio al repo. Este archivo **sí puede ser público sin problema** — no contiene ningún secreto, solo la dirección del proxy.
+8. (Recomendado) En `worker/worker.js`, dentro de `ALLOWED_ORIGINS`, agrega la URL exacta de tu GitHub Pages (ej. `'https://tu-usuario.github.io'`) para que solo tu app pueda usar el proxy, y no cualquiera que descubra la URL del Worker. Vuelve a pegar el código actualizado en Cloudflare y haz Deploy.
+
+El plan gratuito de Cloudflare Workers alcanza sin problema para un taller (100.000 peticiones al día).
+
+### Opción C — Cada participante usa su propia clave
+
+Deja `PROXY_ENDPOINT` y `DEFAULT_API_KEY` vacíos. Cada persona entra a [console.groq.com/keys](https://console.groq.com/keys), genera su propia clave gratuita y la pega en el panel ⚙️ la primera vez que abre la app — queda guardada solo en su navegador. Es la opción con menos configuración de tu parte y sin ningún secreto que cuidar, pero le agrega un paso a cada participante.
+
+> Si ya te bloquearon una clave: entra a [console.groq.com/keys](https://console.groq.com/keys) y revísala — probablemente ya aparece revocada. Genera una nueva y, esta vez, úsala solo con la Opción B o C, nunca pegada directo en un archivo del repo.
+
 
 ## Modelos de Groq
 
@@ -38,7 +66,9 @@ Por defecto el aplicativo usa `openai/gpt-oss-120b`. Groq deprecia y reemplaza m
 ```
 index.html   → estructura de las 5 etapas + pantalla de bienvenida y ficha final
 style.css    → sistema de diseño (paleta PUCV DD100 años) y responsividad
-app.js       → estado del wizard, compilación en vivo, llamadas a Groq, export a PDF
+app.js       → estado del wizard, compilación en vivo, llamadas a Groq/proxy, export a PDF
+worker/
+  worker.js  → proxy opcional de Cloudflare Workers (Opción B) — sin secretos, seguro de subir
 ```
 
 ## Privacidad de los datos del dispositivo
