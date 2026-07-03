@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor de Dispositivos de Reflexión · DD PUCV</title>
+<meta name="description" content="Diseña, con acompañamiento de IA, un dispositivo de reflexión pedagógica para las prácticas profesionales. Dirección de Desarrollo Docente, PUCV.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230E2841%22/><text x=%2250%22 y=%2266%22 font-size=%2255%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Georgia%22>D</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ======================= HEADER ======================= -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="topbar__mark" aria-hidden="true">
+      <svg viewBox="0 0 40 40" width="30" height="30"><path d="M20 2 L36 12 L36 28 L20 38 L4 28 L4 12 Z" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="20" cy="20" r="6" fill="currentColor"/></svg>
+    </span>
+    <div class="topbar__title">
+      <strong>Constructor de Dispositivos</strong>
+      <span>de Reflexión · Prácticas Profesionales</span>
+    </div>
+  </div>
+  <div class="topbar__actions">
+    <span class="topbar__badge" id="progressBadge">Paso 1 de 5</span>
+    <button class="iconbtn" id="btnSettings" title="Configurar acompañante IA" aria-label="Configurar acompañante IA">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ======================= APP SHELL ======================= -->
+<div class="shell">
+
+  <!-- STEP RAIL -->
+  <nav class="rail" id="rail" aria-label="Progreso del dispositivo">
+    <ol class="rail__list" id="railList"></ol>
+    <button class="rail__reset" id="btnReset" title="Empezar un dispositivo nuevo">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      Nuevo dispositivo
+    </button>
+  </nav>
+
+  <!-- MAIN STAGE -->
+  <main class="stage" id="stage">
+
+    <!-- INTRO -->
+    <section class="panel intro" data-panel="intro">
+      <p class="eyebrow">Dirección de Desarrollo Docente · PUCV</p>
+      <h1>Construye tu dispositivo de reflexión</h1>
+      <p class="intro__lede">Este acompañante te guía, paso a paso, para diseñar un dispositivo de elicitación reflexiva para las prácticas profesionales de tu carrera — y lo va compilando en una <strong>ficha lista para usar</strong>, con ayuda de un modelo de IA en cada etapa.</p>
+      <div class="intro__grid">
+        <div class="intro__card" style="--accent:var(--red)"><span>01</span>Sujeto</div>
+        <div class="intro__card" style="--accent:var(--yellow)"><span>02</span>Estímulo</div>
+        <div class="intro__card" style="--accent:var(--cyan)"><span>03</span>Modelo</div>
+        <div class="intro__card" style="--accent:var(--purple)"><span>04</span>Preguntas</div>
+        <div class="intro__card" style="--accent:var(--teal)"><span>05</span>Nivel</div>
+      </div>
+      <button class="btn btn--primary btn--lg" id="btnStart">Comenzar <span aria-hidden="true">→</span></button>
+      <p class="intro__note">Necesitarás una clave gratuita de <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> para activar al acompañante IA. Se guarda solo en tu navegador.</p>
+    </section>
+
+    <!-- STEP 1: SUJETO -->
+    <section class="panel" data-panel="1" hidden>
+      <p class="step-eyebrow" style="--accent:var(--red)">Componente 01</p>
+      <h2>¿Quién usará este dispositivo?</h2>
+      <p class="step-help">Describe al grupo de estudiantes en práctica al que está dirigido. Mientras más específico seas, mejores serán las sugerencias de tu acompañante IA.</p>
+
+      <div class="field">
+        <label for="f_carrera">Carrera o disciplina</label>
+        <input type="text" id="f_carrera" placeholder="Ej.: Enfermería, Ingeniería Comercial, Pedagogía en Historia…">
+      </div>
+
+      <div class="field">
+        <label for="f_momento">Momento de la práctica</label>
+        <select id="f_momento">
+          <option value="">Selecciona una opción…</option>
+          <option>Práctica inicial / primer acercamiento</option>
+          <option>Práctica intermedia</option>
+          <option>Práctica avanzada / internado</option>
+          <option>Recién egresado/a en su primer empleo</option>
+          <option>Otro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="f_cantidad">Cantidad aproximada de estudiantes <span class="opt">(opcional)</span></label>
+        <input type="number" id="f_cantidad" min="1" placeholder="Ej.: 15">
+      </div>
+
+      <div class="field">
+        <label for="f_contexto">¿Qué caracteriza a este grupo?</label>
+        <textarea id="f_contexto" rows="4" placeholder="Ej.: primera experiencia frente a usuarios reales, alta carga emocional, poca costumbre de escribir sobre su propia práctica…"></textarea>
+      </div>
+
+      <div class="companion" data-companion="1"></div>
+    </section>
+
+    <!-- STEP 2: ESTÍMULO -->
+    <section class="panel" data-panel="2" hidden>
+      <p class="step-eyebrow" style="--accent:var(--yellow)">Componente 02</p>
+      <h2>¿Qué activará la reflexión?</h2>
+      <p class="step-help">El estímulo debe generar perplejidad real en tu sujeto — no solo incomodidad superficial. Elige un tipo y descríbelo para tu contexto.</p>
+
+      <div class="chip-group" id="estimuloChips">
+        <button type="button" class="chip" data-value="Grabación de la propia práctica">Grabación de la propia práctica</button>
+        <button type="button" class="chip" data-value="Incidente crítico escrito">Incidente crítico escrito</button>
+        <button type="button" class="chip" data-value="Transcripción o registro de una interacción">Transcripción o registro</button>
+        <button type="button" class="chip" data-value="Artefactos producidos en la práctica">Artefactos de la práctica</button>
+        <button type="button" class="chip" data-value="Portafolio o bitácora">Portafolio o bitácora</button>
+        <button type="button" class="chip" data-value="Pregunta provocadora">Pregunta provocadora</button>
+        <button type="button" class="chip" data-value="Otro">Otro</button>
+      </div>
+
+      <div class="field">
+        <label for="f_estimulo_detalle">Descríbelo para tu contexto</label>
+        <textarea id="f_estimulo_detalle" rows="4" placeholder="Ej.: grabación de 10 minutos de una atención real, revisada por el propio estudiante dentro de las 48 horas siguientes…"></textarea>
+      </div>
+
+      <div class="companion" data-companion="2"></div>
+    </section>
+
+    <!-- STEP 3: MODELO -->
+    <section class="panel" data-panel="3" hidden>
+      <p class="step-eyebrow" style="--accent:var(--cyan)">Componente 03</p>
+      <h2>¿Con qué lente se mira la experiencia?</h2>
+      <p class="step-help">Selecciona el modelo reflexivo que mejor calce con tu sujeto y tu estímulo.</p>
+
+      <div class="model-grid" id="modeloGrid">
+        <button type="button" class="model-card" data-value="ALACT (Korthagen)" data-desc="Ciclo de 5 fases sobre la acción pasada. Mejor para quienes están en proceso formativo.">
+          <strong>ALACT</strong><span>Korthagen, 2001</span>
+        </button>
+        <button type="button" class="model-card" data-value="Cebolla (Korthagen & Vasalos)" data-desc="Profundidad por capas: de la conducta a la misión. Útil para tocar identidad o creencias.">
+          <strong>Cebolla</strong><span>Korthagen &amp; Vasalos</span>
+        </button>
+        <button type="button" class="model-card" data-value="Ciclo de Gibbs" data-desc="Incluye la dimensión emocional de la experiencia. Útil cuando la carga afectiva es parte del problema.">
+          <strong>Ciclo de Gibbs</strong><span>Gibbs, 1988</span>
+        </button>
+        <button type="button" class="model-card" data-value="Niveles de Van Manen" data-desc="Taxonomía técnico → práctico → crítico. Útil para calibrar el nivel de un texto reflexivo.">
+          <strong>Van Manen</strong><span>Niveles</span>
+        </button>
+        <button type="button" class="model-card" data-value="Schön (reflexión en/sobre la acción)" data-desc="Distingue el conocimiento tácito en la acción de la reflexión posterior sobre la acción.">
+          <strong>Schön</strong><span>En / sobre la acción</span>
+        </button>
+        <button type="button" class="model-card" data-value="Otro modelo" data-desc="Describe tu propio marco o combina elementos de varios modelos.">
+          <strong>Otro</strong><span>Personaliza</span>
+        </button>
+      </div>
+      <p class="model-desc" id="modeloDescPreview">Selecciona un modelo para ver su descripción.</p>
+
+      <div class="field">
+        <label for="f_modelo_justif">¿Por qué este modelo calza con tu sujeto y tu estímulo? <span class="opt">(opcional)</span></label>
+        <textarea id="f_modelo_justif" rows="3"></textarea>
+      </div>
+
+      <div class="companion" data-companion="3"></div>
+    </section>
+
+    <!-- STEP 4: PREGUNTAS -->
+    <section class="panel" data-panel="4" hidden>
+      <p class="step-eyebrow" style="--accent:var(--purple)">Componente 04</p>
+      <h2>Preguntas orientadoras</h2>
+      <p class="step-help">Redacta al menos tres preguntas: una descriptiva, una analítica y una crítica. Puedes pedirle borradores a tu acompañante IA y editarlos.</p>
+
+      <button type="button" class="btn btn--ai" id="btnSugerirPreguntas">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+        Sugerir preguntas con IA
+      </button>
+
+      <div class="field">
+        <label for="f_p_desc">Pregunta descriptiva</label>
+        <input type="text" id="f_p_desc" placeholder="¿Qué ocurrió? ¿Qué hice exactamente?">
+      </div>
+      <div class="field">
+        <label for="f_p_analitica">Pregunta analítica / dialógica</label>
+        <input type="text" id="f_p_analitica" placeholder="¿Por qué tomé esa decisión?">
+      </div>
+      <div class="field">
+        <label for="f_p_critica">Pregunta crítica / transformadora</label>
+        <input type="text" id="f_p_critica" placeholder="¿Qué dice esta práctica sobre quién soy como profesional?">
+      </div>
+
+      <div class="companion" data-companion="4"></div>
+    </section>
+
+    <!-- STEP 5: NIVEL -->
+    <section class="panel" data-panel="5" hidden>
+      <p class="step-eyebrow" style="--accent:var(--teal)">Componente 05</p>
+      <h2>¿A qué nivel de profundidad apuntas?</h2>
+      <p class="step-help">Revisa que tu estímulo y tus preguntas estén alineados con el nivel que elijas.</p>
+
+      <div class="level-grid" id="nivelGrid">
+        <button type="button" class="level-card" style="--lvl:#5BB381" data-value="Técnico / descriptivo" data-desc="Eficacia de medios. ¿Qué hice y funcionó?">
+          <strong>Técnico</strong><span>Descriptivo</span>
+        </button>
+        <button type="button" class="level-card" style="--lvl:#00A6B5" data-value="Práctico / analítico" data-desc="Comprensión del significado. ¿Por qué lo hice?">
+          <strong>Práctico</strong><span>Analítico</span>
+        </button>
+        <button type="button" class="level-card" style="--lvl:#F9B233" data-value="Crítico / dialógico" data-desc="Consecuencias éticas y sociales de la práctica.">
+          <strong>Crítico</strong><span>Dialógico</span>
+        </button>
+        <button type="button" class="level-card" style="--lvl:#F37021" data-value="Transformador" data-desc="Cambio de esquemas de significado. ¿Quién soy?">
+          <strong>Transformador</strong><span>Identidad</span>
+        </button>
+      </div>
+      <p class="model-desc" id="nivelDescPreview">Selecciona un nivel para ver su descripción.</p>
+
+      <div class="companion" data-companion="5"></div>
+    </section>
+
+    <!-- RESULT / FICHA FINAL -->
+    <section class="panel" data-panel="final" hidden>
+      <p class="step-eyebrow" style="--accent:var(--navy)">Listo</p>
+      <h2>Tu dispositivo está compilado</h2>
+      <p class="step-help">Revisa la ficha completa. Puedes descargarla en PDF o volver a editar cualquier componente.</p>
+
+      <div class="ficha-doc" id="fichaDoc"><!-- rendered by JS --></div>
+
+      <div class="final-actions">
+        <button class="btn btn--primary btn--lg" id="btnDownloadPdf">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Descargar PDF
+        </button>
+        <button class="btn btn--ghost" id="btnEditAgain">Volver a editar</button>
+      </div>
+    </section>
+
+    <!-- NAV BUTTONS -->
+    <div class="stepnav" id="stepnav" hidden>
+      <button class="btn btn--ghost" id="btnBack">← Atrás</button>
+      <button class="btn btn--primary" id="btnNext">Continuar →</button>
+    </div>
+
+  </main>
+
+  <!-- FICHA SIDEBAR (desktop/tablet) -->
+  <aside class="sidebar" id="sidebar" aria-label="Ficha en construcción">
+    <h3>Tu dispositivo en construcción</h3>
+    <div class="sidebar__progress">
+      <div class="sidebar__progress-bar"><div id="progressFill"></div></div>
+      <span id="progressText">0 de 5 componentes</span>
+    </div>
+    <ol class="sidebar__slots" id="sidebarSlots"></ol>
+  </aside>
+
+</div>
+
+<!-- MOBILE FICHA TOGGLE -->
+<button class="fab" id="fabFicha">
+  <span id="fabText">Ver ficha · 0/5</span>
+</button>
+<div class="sheet" id="sheet">
+  <div class="sheet__handle" id="sheetClose"></div>
+  <h3>Tu dispositivo en construcción</h3>
+  <ol class="sidebar__slots" id="sheetSlots"></ol>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="modalSettings">
+  <div class="modal__box">
+    <h3>Acompañante IA</h3>
+    <p class="modal__lede">Ingresa tu clave de <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> para activar las sugerencias en cada paso. Se guarda únicamente en este navegador (<code>localStorage</code>) y las llamadas van directo desde tu navegador a Groq — nunca pasan por nuestros servidores, porque esta app no tiene servidor.</p>
+
+    <div class="field">
+      <label for="apiKeyInput">Clave de API de Groq</label>
+      <input type="password" id="apiKeyInput" placeholder="gsk_...">
+    </div>
+
+    <div class="field">
+      <label for="modelSelect">Modelo</label>
+      <select id="modelSelect">
+        <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (recomendado)</option>
+        <option value="openai/gpt-oss-20b">openai/gpt-oss-20b (más rápido)</option>
+        <option value="qwen/qwen3.6-27b">qwen/qwen3.6-27b</option>
+        <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+        <option value="gemma2-9b-it">gemma2-9b-it</option>
+      </select>
+      <p class="field__hint">Si un modelo da error, es probable que Groq lo haya reemplazado — revisa <a href="https://console.groq.com/docs/models" target="_blank" rel="noopener">la lista vigente</a> y prueba otro.</p>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn btn--ghost" id="btnCloseSettings">Cancelar</button>
+      <button class="btn btn--primary" id="btnSaveSettings">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.12.1/html2pdf.bundle.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
