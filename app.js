@@ -48,6 +48,7 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
       nivel: { valor: '' },
     },
     chat: { 1: [], 2: [], 3: [], 4: [], 5: [] },
+    aiElaboration: '',
   };
 
   let settings = { apiKey: '', model: 'openai/gpt-oss-120b' };
@@ -266,6 +267,12 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
         <p><strong>${empty(d.nivel.valor)}</strong></p>
       </div>
 
+      ${state.aiElaboration ? `
+      <div class="ficha-doc__section ficha-doc__section--ai" style="--accent:#7B4CB8">
+        <h5>Síntesis del acompañante IA</h5>
+        <p>${esc(state.aiElaboration)}</p>
+      </div>` : ''}
+
       <div class="ficha-doc__footer">
         <span>Diseñado con el Constructor de Dispositivos de Reflexión</span>
         <span>${new Date().toLocaleDateString('es-CL')}</span>
@@ -315,6 +322,7 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
   }
 
   function onDataChange() {
+    if (state.aiElaboration) state.aiElaboration = '';
     renderSidebar();
     if (typeof state.step === 'number') {
       $('#btnNext').disabled = !isStepComplete(state.step);
@@ -348,7 +356,9 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
       throw new Error(`${usingProxy ? 'El proxy' : 'Groq'} respondió ${res.status}: ${detail}`);
     }
     const json = await res.json();
-    return json.choices && json.choices[0] && json.choices[0].message ? json.choices[0].message.content.trim() : '';
+    const msg = json.choices && json.choices[0] && json.choices[0].message;
+    const content = msg && typeof msg.content === 'string' ? msg.content : '';
+    return content.trim();
   }
 
   function contextSummary(uptoStep) {
@@ -493,6 +503,35 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     btn.innerHTML = original;
   }
 
+  async function elaborarConIA() {
+    if (!hasKey()) { openSettings(); return; }
+    const btn = $('#btnElaborarIA');
+    const status = $('#elaborarStatus');
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Elaborando…';
+    if (status) status.textContent = '';
+    try {
+      const messages = [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: `Contexto completo del dispositivo:\n${contextSummary(5)}\n\nRedacta una síntesis breve (entre 120 y 180 palabras), en prosa fluida y profesional, en español de Chile, que explique cómo el estímulo, el modelo reflexivo, las preguntas orientadoras y el nivel de profundidad elegidos trabajan juntos de forma coherente para este sujeto destinatario. Debe sonar como una nota de presentación que el/la docente podría compartir con su coordinación de prácticas o con colegas. No inventes datos que no estén en el contexto entregado. No uses viñetas, títulos ni markdown — solo párrafos de texto plano.` },
+      ];
+      const reply = await callGroq(messages, { maxTokens: 400, temperature: 0.65 });
+      if (reply) {
+        state.aiElaboration = reply;
+        renderFichaFinal();
+        saveState();
+        btn.textContent = '🔄 Regenerar síntesis IA';
+      } else if (status) {
+        status.textContent = 'El acompañante no devolvió texto. Intenta de nuevo.';
+      }
+    } catch (err) {
+      if (status) status.textContent = 'No se pudo elaborar la síntesis. ' + err.message;
+    }
+    btn.disabled = false;
+    if (btn.innerHTML === 'Elaborando…') btn.innerHTML = original;
+  }
+
   /* ---------------- SETTINGS MODAL ---------------- */
   function openSettings() {
     $('#apiKeyInput').value = settings.apiKey;
@@ -545,6 +584,7 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
         nivel: { valor: '' },
       },
       chat: { 1: [], 2: [], 3: [], 4: [], 5: [] },
+      aiElaboration: '',
     };
     render();
   }
@@ -560,6 +600,7 @@ Responde siempre en español de Chile, en tono cercano y profesional, breve (má
     $('#btnReset').addEventListener('click', resetAll);
     $('#btnEditAgain').addEventListener('click', () => goToStep(1));
     $('#btnDownloadPdf').addEventListener('click', downloadPdf);
+    $('#btnElaborarIA').addEventListener('click', elaborarConIA);
 
     $('#btnSettings').addEventListener('click', openSettings);
     $('#btnCloseSettings').addEventListener('click', closeSettings);

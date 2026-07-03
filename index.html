@@ -60,7 +60,7 @@
         <div class="intro__card" style="--accent:var(--teal)"><span>05</span>Nivel</div>
       </div>
       <button class="btn btn--primary btn--lg" id="btnStart">Comenzar <span aria-hidden="true">→</span></button>
-      <p class="intro__note">Necesitarás una clave gratuita de <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> para activar al acompañante IA. Se guarda solo en tu navegador.</p>
+      <p class="intro__note">El acompañante IA ya está activo para este taller. Si quieres usar tu propia clave de <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a>, puedes cambiarla en el ⚙️ de arriba.</p>
     </section>
 
     <!-- STEP 1: SUJETO -->
@@ -215,7 +215,13 @@
     <section class="panel" data-panel="final" hidden>
       <p class="step-eyebrow" style="--accent:var(--navy)">Listo</p>
       <h2>Tu dispositivo está compilado</h2>
-      <p class="step-help">Revisa la ficha completa. Puedes descargarla en PDF o volver a editar cualquier componente.</p>
+      <p class="step-help">Revisa la ficha completa. Puedes elaborarla con IA, descargarla en PDF o volver a editar cualquier componente.</p>
+
+      <button type="button" class="btn btn--ai" id="btnElaborarIA">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg>
+        Elaborar con IA
+      </button>
+      <p class="ai-status" id="elaborarStatus"></p>
 
       <div class="ficha-doc" id="fichaDoc"><!-- rendered by JS --></div>
 
@@ -263,7 +269,7 @@
 <div class="modal" id="modalSettings">
   <div class="modal__box">
     <h3>Acompañante IA</h3>
-    <p class="modal__lede">Ingresa tu clave de <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> para activar las sugerencias en cada paso. Se guarda únicamente en este navegador (<code>localStorage</code>) y las llamadas van directo desde tu navegador a Groq — nunca pasan por nuestros servidores, porque esta app no tiene servidor.</p>
+    <p class="modal__lede">Esta app ya trae activado un acompañante IA para el taller. Si prefieres usar tu propia clave de <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (por ejemplo, para seguir usando la app después del taller), pégala aquí — reemplaza a la del taller solo en tu navegador. Se guarda únicamente en este navegador (<code>localStorage</code>) y las llamadas van directo desde tu navegador a Groq — nunca pasan por un servidor propio, porque esta app no tiene servidor.</p>
 
     <div class="field">
       <label for="apiKeyInput">Clave de API de Groq</label>

@@ -333,7 +333,10 @@ input::placeholder, textarea::placeholder { color: #a7b2bc; }
 .ficha-doc__questions { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .ficha-doc__questions li { font-size: 14.5px; padding-left: 18px; position: relative; }
 .ficha-doc__questions li::before { content: '—'; position: absolute; left: 0; color: var(--purple); }
+.ficha-doc__section--ai { background: linear-gradient(180deg, #faf7fd, transparent); margin: 0 -12px; padding: 14px 12px; border-radius: var(--radius-sm); }
+.ficha-doc__section--ai p { font-style: italic; }
 .ficha-doc__footer { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; }
+.ai-status { font-size: 12.5px; color: var(--red); min-height: 1em; margin: -10px 0 14px; }
 
 .final-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
